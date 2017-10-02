@@ -1,0 +1,23 @@
+#server:
+#  port: 8080
+#
+#spring:
+#  application:
+#      name: yong-security
+#  data:
+#    mongodb:
+#      uri: mongodb://localhost:27017/security
+#eureka:
+#  client:
+#    fetch-registry: false
+#    register-with-eureka: false
+#    serviceUrl:
+#      defaultZone: http://localhost:8761/eureka/
+#  instance:
+#    statusPageUrlPath: /index
+
+#logging:
+#  level:
+#    com.yong: DEBUG
+
+
