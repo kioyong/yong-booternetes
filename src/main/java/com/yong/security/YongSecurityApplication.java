@@ -3,13 +3,16 @@ package com.yong.security;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableWebFlux
-@EnableAutoConfiguration
+@EnableAutoConfiguration(
+		exclude = {
+				org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class
+		}
+)
 public class YongSecurityApplication {
 
 	public static void main(String[] args) {

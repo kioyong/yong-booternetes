@@ -1,12 +1,26 @@
-#server:
-#  port: 8080
+server:
+  port: 8081
 #
-#spring:
-#  application:
-#      name: yong-security
-#  data:
-#    mongodb:
-#      uri: mongodb://localhost:27017/security
+spring:
+  application:
+      name: yong-security
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/security
+security:
+  oauth2:
+    client:
+      client-id: yong
+      client-secret: passw0rd
+      access-token-uri: http://localhost:8081/oauth2-server/oauth/token
+      user-authorization-uri: http://localhost:8081/oauth2-server/oauth/authorize
+      registered-redirect-uri: http://localhost:9090/client/home.html
+      scope: write
+      auto-approve-scopes: read,write
+    resource:
+      user-info-uri: http://localhost:8081/oauth2-server/user
+  headers:
+    content-type: true
 #eureka:
 #  client:
 #    fetch-registry: false

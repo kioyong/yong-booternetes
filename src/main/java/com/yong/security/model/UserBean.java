@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.CredentialsContainer;
@@ -19,12 +20,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Created by LiangYong on 2017/10/1.
  */
 @AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "user")
-@Builder
-public class User implements UserDetails,CredentialsContainer {
+public class UserBean implements UserDetails,CredentialsContainer {
 
     @Id
-    private final String username;
+    private String username;
     @JsonIgnore
     private String password;
     private Set<GrantedAuthority> authorities;
@@ -106,5 +107,9 @@ public class User implements UserDetails,CredentialsContainer {
         Set<GrantedAuthority> authorities = new CopyOnWriteArraySet<>();
         authorities.add(new SimpleGrantedAuthority("user"));
         this.authorities = authorities;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

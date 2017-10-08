@@ -1,4 +1,4 @@
-package com.yong.security;
+package com.yong.security.config;
 
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;

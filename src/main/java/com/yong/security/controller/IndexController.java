@@ -1,18 +1,31 @@
 package com.yong.security.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.yong.security.model.AuthenticationBean;
+import com.yong.security.model.ResponseBean;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by LiangYong on 2017/10/1.
  */
 @RestController
-@RequestMapping("/index")
+@CrossOrigin
 public class IndexController {
 
-    @GetMapping
-    public String getHelloWorld(){
-        return "Hello Security!";
+    @GetMapping("/index")
+    public ResponseBean getHelloWorld(){
+        return ResponseBean.success("test success!");
     }
+
+    @PostMapping("/postTest")
+    public ResponseBean getHelloWorldPost(@RequestBody AuthenticationBean authenticationBean){
+        return ResponseBean.success("test success!",authenticationBean);
+    }
+
+    @GetMapping("/loginSuccess")
+    public ResponseBean loginSuccess(){
+        return ResponseBean.success("login Success!");
+    }
+
+    @GetMapping("/loginFail")
+    public ResponseBean getError(){return ResponseBean.error("Authenication error");}
 }
