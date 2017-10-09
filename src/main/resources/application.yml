@@ -19,6 +19,11 @@ security:
       auto-approve-scopes: read,write
     resource:
       user-info-uri: http://localhost:8081/oauth2-server/user
+      jwt:
+        keyValue: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC...
+          -----END PUBLIC KEY-----
   headers:
     content-type: true
 #eureka:
