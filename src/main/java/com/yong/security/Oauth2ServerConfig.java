@@ -53,16 +53,9 @@ public class Oauth2ServerConfig {
 
     @Configuration
     @EnableWebSecurity
-    @EnableGlobalAuthentication
+//    @EnableGlobalAuthentication
     protected static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        private UserDetailsService userDetailsService;
-
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth.userDetailsService(this.userDetailsService);
-        }
 //        @Override
 //        protected void configure(HttpSecurity http) throws Exception {
 //            http.authorizeRequests()
@@ -70,24 +63,30 @@ public class Oauth2ServerConfig {
 //                    .antMatchers("/swagger-ui.*","/swagger-resources/**","/webjars/**","/v2/api-docs").permitAll()
 //                    .anyRequest().authenticated();
 //        }
+        @Autowired
+        private UserDetailsService userDetailsService;
+
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth.userDetailsService(this.userDetailsService);
+        }
 
         @Override
         @Bean
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
-
     }
 
     @Configuration
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-        @Override
-        public void configure(ResourceServerSecurityConfigurer resources) {
-            resources.resourceId("resource_id").stateless(false);
-            resources.tokenStore(tokenStore());
-        }
+//        @Override
+//        public void configure(ResourceServerSecurityConfigurer resources) {
+//            resources.resourceId("resource_id").stateless(false);
+////            resources.tokenStore(tokenStore());
+//        }
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.csrf().disable();
@@ -97,21 +96,20 @@ public class Oauth2ServerConfig {
                 .antMatchers("/oauth/**","/user/register", "/login","/index","/error","/").permitAll()
                     .antMatchers("/swagger-ui.*","/swagger-resources/**","/webjars/**","/v2/api-docs").permitAll()
                 .anyRequest().authenticated();
-            //"**.css","**.js","**.png","**.ico
-
         }
 
-        @Bean
-        public JwtTokenStore tokenStore() {
-            return new JwtTokenStore(jwtAccessTokenConverter());
-        }
+//        @Bean
+//        public JwtTokenStore tokenStore() {
+//            return new JwtTokenStore(jwtAccessTokenConverter());
+//        }
+//
+//        @Bean
+//        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+//            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+//            jwtAccessTokenConverter.setSigningKey("yong_secret");
+//            return jwtAccessTokenConverter;
+//        }
 
-        @Bean
-        public JwtAccessTokenConverter jwtAccessTokenConverter() {
-            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            jwtAccessTokenConverter.setSigningKey("yong_secret");
-            return jwtAccessTokenConverter;
-        }
     }
 
     @Configuration
@@ -122,14 +120,10 @@ public class Oauth2ServerConfig {
         @Autowired
         private AuthenticationManager authenticationManager;
 
-        @Value("${security.oauth2.client.client-secret}")
-        private String secret;
-        @Value("${security.oauth2.client.client-id}")
-        private String client_id;
-
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-            endpoints.tokenStore(tokenStore())
+            endpoints
+//                    .tokenStore()
                     .tokenEnhancer(tokenEnhancerChain())
                     .accessTokenConverter(jwtAccessTokenConverter())
                     .authenticationManager(authenticationManager);
@@ -141,8 +135,8 @@ public class Oauth2ServerConfig {
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients
                     .inMemory()
-                    .withClient(client_id.trim())
-                    .secret(secret.trim())
+                    .withClient("yong")
+                    .secret("passw0rd")
                     .authorities("ROLE_TRUSTED_CLIENT")
                     .accessTokenValiditySeconds(3600)
                     .authorizedGrantTypes("password")
@@ -166,7 +160,7 @@ public class Oauth2ServerConfig {
             return tokenEnhancerChain;
         }
         @Bean
-        public JwtTokenStore tokenStore() {
+        public TokenStore tokenStore() {
             return new JwtTokenStore(jwtAccessTokenConverter());
         }
 
