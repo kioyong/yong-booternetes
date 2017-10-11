@@ -19,8 +19,9 @@ security:
 #  instance:
 #    statusPageUrlPath: /index
 
-#logging:
-#  level:
-#    com.yong: DEBUG
+logging:
+  level:
+    com.yong: DEBUG
+    org.springframework.security: DEBUG
 
 
