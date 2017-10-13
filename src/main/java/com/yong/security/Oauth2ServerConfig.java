@@ -1,16 +1,12 @@
 package com.yong.security;
 
-import com.yong.security.service.impl.UserDetailServiceImpl;
-import lombok.AllArgsConstructor;
+import com.yong.security.filter.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
-import org.springframework.core.env.Environment;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,26 +18,13 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
-import org.springframework.security.oauth2.provider.approval.ApprovalStore;
-import org.springframework.security.oauth2.provider.approval.ApprovalStoreUserApprovalHandler;
-import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
-import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
-import org.springframework.security.oauth2.provider.client.BaseClientDetails;
-import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.*;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-
-import java.util.Arrays;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 //import static com.yong.security.Oauth2ServerConfig.AuthorizationServerConfiguration.tokenStore;
 
@@ -50,19 +33,12 @@ import java.util.Arrays;
  */
 @Configuration
 public class Oauth2ServerConfig {
+    private static final String RESOURCE_ID = "yong";
 
     @Configuration
     @EnableWebSecurity
-//    @EnableGlobalAuthentication
-    protected static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    protected static class WebSecurityConfig extends WebSecurityConfigurerAdapter  {
 
-//        @Override
-//        protected void configure(HttpSecurity http) throws Exception {
-//            http.authorizeRequests()
-//                    .antMatchers("/oauth/**","/user/register", "/login","/index","/error","/").permitAll()
-//                    .antMatchers("/swagger-ui.*","/swagger-resources/**","/webjars/**","/v2/api-docs").permitAll()
-//                    .anyRequest().authenticated();
-//        }
         @Autowired
         private UserDetailsService userDetailsService;
 
@@ -70,11 +46,41 @@ public class Oauth2ServerConfig {
         public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(this.userDetailsService);
         }
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+//            http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
+//
+//            http
+//                    .requestMatcher(new AntPathRequestMatcher("/oauth/**"))
+//                    .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//
+//            http.authorizeRequests()
+//                    .antMatchers("/rest/**").anonymous()
+//                    .and()
+//                    .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//
+//            http.authorizeRequests().anyRequest().permitAll();
+
+        }
 
         @Override
         @Bean
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
+        }
+    }
+
+    @Configuration
+    @Order(-1)
+    public class CorsConfiguration extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+            http.requestMatchers().antMatchers(HttpMethod.OPTIONS, "/oauth/token","/rest/**")
+                    .and()
+                    .authorizeRequests().anyRequest().permitAll()
+                    .and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
@@ -89,47 +95,60 @@ public class Oauth2ServerConfig {
 //        }
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable();
-            http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             http.authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS).permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/oauth/token").permitAll()
+                .antMatchers(HttpMethod.GET,
+                    "/",
+                    "/*.html",
+                    "/favicon.ico",
+                    "/**/*.html",
+                    "/**/*.css",
+                    "/**/*.js").permitAll()
                 .antMatchers("/oauth/**","/user/register", "/login","/index","/error","/").permitAll()
-                    .antMatchers("/swagger-ui.*","/swagger-resources/**","/webjars/**","/v2/api-docs").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/swagger-ui.*","/swagger-resources/**","/webjars/**","/v2/api-docs").permitAll()
+                .anyRequest().authenticated()
+                .and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
 
-//        @Bean
-//        public JwtTokenStore tokenStore() {
-//            return new JwtTokenStore(jwtAccessTokenConverter());
-//        }
-//
-//        @Bean
-//        public JwtAccessTokenConverter jwtAccessTokenConverter() {
-//            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-//            jwtAccessTokenConverter.setSigningKey("yong_secret");
-//            return jwtAccessTokenConverter;
-//        }
+//            @Autowired
+        private ClientDetailsService clientDetailsService;
+
+        @Bean
+        public JwtAccessTokenConverter accessTokenConverter() {
+            return new JwtAccessTokenConverter();
+        }
+        @Bean
+        public TokenStore tokenStore() {
+            return new JwtTokenStore(accessTokenConverter());
+        }
+        @Override
+        public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+
+            final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setTokenEnhancer(accessTokenConverter());
+            defaultTokenServices.setClientDetailsService(clientDetailsService);
+            resources.resourceId(RESOURCE_ID).tokenServices(defaultTokenServices);
+        }
 
     }
 
     @Configuration
     @EnableAuthorizationServer
-    protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
-        @Autowired
-        private TokenStore tokenStore;
+    protected class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
         @Autowired
         private AuthenticationManager authenticationManager;
 
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
             endpoints
-//                    .tokenStore()
-                    .tokenEnhancer(tokenEnhancerChain())
-                    .accessTokenConverter(jwtAccessTokenConverter())
-                    .authenticationManager(authenticationManager);
+//                    .tokenStore(tokenStore())
+//                    .tokenEnhancer(tokenEnhancerChain())
+                    .accessTokenConverter(accessTokenConverter())
+                    .authenticationManager(authenticationManager)
 //                    .userDetailsService(userDetailsService)  //已经在WebSecurityConfig注入userDetailsService,此处不用注入,共用同一个userDetailsService
-//                    .setClientDetailsService(clientDetailService) //在下面配置为inMemory() clients,配置一个使用,此处不做clientDetailService实现,同userDetailService实现方法类似
-
+//                    .setClientDetailsService(inMemoryClientDetailsService) //在下面配置为inMemory() clients,配置一个使用,此处不做clientDetailService实现,同userDetailService实现方法类似
+                    ;
         }
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -146,30 +165,69 @@ public class Oauth2ServerConfig {
 //            authorizedGrantTypes =
         }
 
-        @Override
-        public void configure(AuthorizationServerSecurityConfigurer oauthServer)
-                throws Exception {
+//        @Override
+//        public void configure(AuthorizationServerSecurityConfigurer oauthServer)
+//                throws Exception {
 //            oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
-            oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
-                    "hasAuthority('ROLE_TRUSTED_CLIENT')");
-        }
-
-        private TokenEnhancer tokenEnhancerChain() {
-            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter()));
-            return tokenEnhancerChain;
-        }
+////            oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
+////                    "hasAuthority('ROLE_TRUSTED_CLIENT')");
+//        }
         @Bean
-        public TokenStore tokenStore() {
-            return new JwtTokenStore(jwtAccessTokenConverter());
+        public JwtAccessTokenConverter accessTokenConverter() {
+            return new JwtAccessTokenConverter();
         }
-
-        @Bean
-        public JwtAccessTokenConverter jwtAccessTokenConverter() {
-            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            jwtAccessTokenConverter.setSigningKey("yong_secret");
-            return jwtAccessTokenConverter;
-        }
+//        private JwtAccessTokenConverter tokenEnhancerChain() {
+//            JwtAccessTokenConverter tokenEnhancerChain = new JwtAccessTokenConverter();
+//            tokenEnhancerChain.setAccessTokenConverter(jwtAccessTokenConverter());
+//            return tokenEnhancerChain;
+//        }
+//
+//        @Bean
+//        public TokenStore tokenStore() {
+//            return new InMemoryTokenStore();
+//        }
+//        @Bean
+//        public  JwtTokenStore tokenStore() {
+//            return new JwtTokenStore(jwtAccessTokenConverter());
+//        }
+//
+//        @Bean
+//        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+//            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+////            DefaultUserAuthenticationConverter defaultUserAuthenticationConverter = new DefaultUserAuthenticationConverter();
+////            defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
+////            DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
+////            jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
+//            jwtAccessTokenConverter.setSigningKey("yong_secret1");
+//            return jwtAccessTokenConverter;
+//        }
     }
+//    protected static class Stuff {
+//
+//        @Autowired
+//        private ClientDetailsService clientDetailsService;
+//
+//        @Autowired
+//        private TokenStore tokenStore;
+//
+//        @Bean
+//        public ApprovalStore approvalStore() throws Exception {
+//            TokenApprovalStore store = new TokenApprovalStore();
+//            store.setTokenStore(tokenStore);
+//            return store;
+//        }
+//
+//        @Bean
+//        @Lazy
+//        @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+//        public CustomUserApprovalHandler userApprovalHandler() throws Exception {
+//            CustomUserApprovalHandler handler = new CustomUserApprovalHandler();
+//            handler.setApprovalStore(approvalStore());
+//            handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+//            handler.setClientDetailsService(clientDetailsService);
+//            handler.setUseApprovalStore(true);
+//            return handler;
+//        }
+//    }
 
 }
