@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class AuthenticationBean {
+public class AuthenticationVo {
     private String username;
     private String password;
 }

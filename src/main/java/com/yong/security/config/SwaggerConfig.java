@@ -1,25 +1,15 @@
 package com.yong.security.config;
 
-import com.google.common.base.Predicate;
-import com.yong.security.model.AuthenticationBean;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import springfox.documentation.builders.*;
 import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.ApiKeyVehicle;
-import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
@@ -40,6 +30,9 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         log.info("start init swagger2");
+        /**
+         * 为所有swagger UI 上面的请求默认添加一个 authorization 参数，方便测试
+         * **/
         Parameter param = new ParameterBuilder()
                 .parameterType("header")
                 .name("Authorization")
@@ -56,13 +49,10 @@ public class SwaggerConfig {
                 .build()
                 .globalOperationParameters(params);
     }
-    @Bean
-    public ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("yong Security API")
-                .description("Follow APIs are for yong_security operations")
-                .version("0.0.1-SNAPSHOT").build();
-    }
 
+    /**
+     * 让"localhost:8081/" 跳转到"localhost:8081/swagger-ui.html
+     * **/
     @RequestMapping("/")
     public String home() {
         return "redirect:swagger-ui.html";

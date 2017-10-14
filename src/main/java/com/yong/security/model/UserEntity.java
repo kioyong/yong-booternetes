@@ -1,6 +1,7 @@
 package com.yong.security.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +23,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "user")
-public class UserBean implements UserDetails,CredentialsContainer {
+@Builder
+public class UserEntity implements UserDetails,CredentialsContainer {
 
     @Id
     private String username;
@@ -34,12 +36,15 @@ public class UserBean implements UserDetails,CredentialsContainer {
     private  boolean credentialsNonExpired;
     private  boolean enabled;
 
-
+    @JsonIgnore
+    @Override
+    public String getName() {
+        return getUsername();
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-
     @Override
     public String getPassword() {
         return this.password;
@@ -105,11 +110,13 @@ public class UserBean implements UserDetails,CredentialsContainer {
         this.enabled = true;
         this.credentialsNonExpired = true ;
         Set<GrantedAuthority> authorities = new CopyOnWriteArraySet<>();
-        authorities.add(new SimpleGrantedAuthority("user"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         this.authorities = authorities;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
+
+
 }

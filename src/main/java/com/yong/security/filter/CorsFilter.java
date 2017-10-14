@@ -12,9 +12,13 @@ import java.io.IOException;
 /**
  * Created by LiangYong on 2017/10/13.
  */
-//@Component
+@Component
 public class CorsFilter extends OncePerRequestFilter {
 
+    /**
+     * 解决前后端分离跨域请求OPTIONS请求401问题，配合WebSecurityConfig 里面的配置 + @Order(-1) 使用
+     * 参考 https://stackoverflow.com/questions/25136532/allow-options-http-method-for-oauth-token-request
+     * **/
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
