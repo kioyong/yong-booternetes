@@ -56,8 +56,8 @@ public class SwaggerConfig {
                 .build()
                 .globalOperationParameters(params);
     }
-
-    private ApiInfo apiInfo() {
+    @Bean
+    public ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("yong Security API")
                 .description("Follow APIs are for yong_security operations")
                 .version("0.0.1-SNAPSHOT").build();
