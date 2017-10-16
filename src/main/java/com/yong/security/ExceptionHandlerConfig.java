@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by LiangYong on 2017/10/14.
+ * @author  LiangYong
+ * @createdDate 2017/10/14.
  */
 @RestControllerAdvice
 public class ExceptionHandlerConfig {
@@ -20,10 +21,10 @@ public class ExceptionHandlerConfig {
                 .filter(t ->
                         t.getClassName().startsWith("com.yong") &&
                         t.getLineNumber() > 0 &&
-                        !t.getFileName().equals("CorsFilter.java")
+                        !"CorsFilter.java".equals(t.getFileName())
                 )
                 .map(t -> {
-                    Map<String, String> map = new HashMap<>();
+                    Map<String, String> map = new HashMap<>(3);
                     map.put("methodName", t.getMethodName());
                     map.put("fileName", t.getFileName());
                     map.put("lineNumber", t.getLineNumber() + "");

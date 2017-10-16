@@ -18,7 +18,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Created by LiangYong on 2017/10/1.
+ * @author  LiangYong
+ * @createdDate 2017/10/1.
  */
 @AllArgsConstructor
 @NoArgsConstructor
