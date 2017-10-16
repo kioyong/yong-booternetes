@@ -4,7 +4,8 @@ import com.yong.security.model.ResponseVo;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Created by LiangYong on 2017/10/1.
+ * @author  LiangYong
+ * @createdDate 2017/10/1.
  */
 @RestController
 @CrossOrigin

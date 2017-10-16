@@ -1,6 +1,5 @@
 package com.yong.security.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.yong.security.model.AuthenticationVo;
 import com.yong.security.model.ResponseVo;
 import com.yong.security.model.UserEntity;
@@ -12,11 +11,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import java.security.Principal;
-import static com.google.common.base.Preconditions.checkArgument;
+
 
 
 /**
- * Created by LiangYong on 2017/10/1.
+ * @author yong.a.liang
+ * createdDate 2017/10/1.
  */
 @RestController
 @AllArgsConstructor
@@ -35,7 +35,7 @@ public class UserController {
     public Mono<ResponseVo> getUserDetail(@PathVariable("username")String username){
         return this.userDetailService.findUserByUsername(username)
             .map(ResponseVo::success)
-            .switchIfEmpty(Mono.just(ResponseVo.error("user not exists!")));
+            .switchIfEmpty(Mono.just(ResponseVo.error("user not found!")));
     }
 
     /**

@@ -31,12 +31,12 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("start load User By Username");
         UserEntity user = dao.findById(username).block();
-        if (user == null) throw new UsernameNotFoundException("username not found");
         return user;
     }
 
     @Override
     public Mono<UserEntity> registerUser(UserEntity user) {
+        checkArgument(!user.getName().isEmpty(),"username can't be null");
         checkArgument(!user.getPassword().isEmpty(),"password can't be null");
         user.init();
         return dao.insert(user);

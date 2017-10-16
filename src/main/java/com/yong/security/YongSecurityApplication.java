@@ -6,6 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
+/**
+ * @author  LiangYong
+ * @createdDate 2017/10/1.
+ * **/
 @SpringBootApplication
 @EnableWebFlux
 @EnableAutoConfiguration(

@@ -30,7 +30,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 
 /**
- * Created by LiangYong on 2017/10/8.
+ * @author  LiangYong
+ * @createdDate 2017/10/8.
  */
 @Configuration
 public class Oauth2ServerConfig {
@@ -44,6 +45,7 @@ public class Oauth2ServerConfig {
         @Autowired
         private UserDetailsService userDetailsService;
 
+        @Override
         public void configure(@Autowired AuthenticationManagerBuilder auth) throws Exception {
             //注入校验登录用户账号密码的service
             auth.userDetailsService(this.userDetailsService);
