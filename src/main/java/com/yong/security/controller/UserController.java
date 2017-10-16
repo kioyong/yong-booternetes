@@ -51,13 +51,19 @@ public class UserController {
     /**
      * 注册功能，Body上需要输入用户名和密码，
      * 当前只添加了用户名密码不能为空，且用户名没有被注册过
+     * restController Post request 默认的RequestBody也是 application/json格式的
      * **/
-    @PostMapping("/register")
+    @PostMapping(path = "/register",consumes = "application/json")
     public Mono registerUser(@RequestBody AuthenticationVo auth){
+        //webFlux写法一
         return this.userDetailService.findUserByUsername(auth.getUsername())
             .map(t -> ResponseVo.error("user " + t.getUsername() + " already exists!"))
             .switchIfEmpty(
-                this.userDetailService.registerUser(UserEntity.builder().username(auth.getUsername()).password(auth.getPassword()).build()
+                this.userDetailService.registerUser(
+                    UserEntity.builder()
+                        .username(auth.getUsername())
+                        .password(auth.getPassword())
+                        .build()
                 )
             .map(ResponseVo::success));
     }

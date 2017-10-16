@@ -24,6 +24,6 @@ security:
 logging:
   level:
     com.yong: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
 
 
