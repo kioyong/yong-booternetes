@@ -46,9 +46,10 @@ public class NullPointStreamListTest {
         Address add1 = new Address(list1);
         Address add2 = new Address(list2);
         Address add3 = new Address(new ArrayList<>());
-        Person person = new Person(Arrays.asList(add1,add2));
-        Person person1 = new Person(Arrays.asList(add1,add3));
+        Address add4 = null;
+        Person person1 = new Person(Arrays.asList(add1,add3,add4));
         List<String> collect = person1.getAddress().stream()
+                .filter(s -> s != null)
                 .flatMap(s -> s.getSomeMessage().stream())
                 .collect(Collectors.toList());
 
