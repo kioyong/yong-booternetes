@@ -3,6 +3,8 @@ package com.yong.security;
 import com.yong.security.filter.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -34,8 +37,12 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
  * @createdDate 2017/10/8.
  */
 @Configuration
+@ConfigurationProperties
 public class Oauth2ServerConfig {
     private static final String RESOURCE_ID = "yong";
+
+    @Value("${yong.oauth.enable}")
+    private static Boolean enable_auth;
 
     @Configuration
     @EnableWebSecurity
@@ -48,7 +55,8 @@ public class Oauth2ServerConfig {
         @Override
         public void configure(@Autowired AuthenticationManagerBuilder auth) throws Exception {
             //注入校验登录用户账号密码的service
-            auth.userDetailsService(this.userDetailsService);
+            auth.userDetailsService(this.userDetailsService)
+                    .passwordEncoder(new BCryptPasswordEncoder());
 //            InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 //            manager.createUser(User.withUsername("user").password("password").roles("USER").build());
 //            manager.createUser(User.withUsername("admin").password("password").roles("USER","ADMIN").build());
@@ -128,12 +136,15 @@ public class Oauth2ServerConfig {
         }
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
-                    .antMatchers(HttpMethod.GET,"/","/*.html","/**/*.css","/**/*.js","/**/*.png").permitAll()
-                    .antMatchers("/user/register","/index","/v2/api-docs","/swagger-resources/**").permitAll()
-                    .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//            http.authorizeRequests()
-//                    .anyRequest().permitAll();//取消安全校验，当测试其他function且不跟权限相关的时候可以使用这里
+            if(enable_auth) {
+                http.authorizeRequests()
+                        .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.css", "/**/*.js", "/**/*.png").permitAll()
+                        .antMatchers("/user/register", "/index", "/v2/api-docs", "/swagger-resources/**").permitAll()
+                        .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            }else {
+                http.authorizeRequests()
+                        .anyRequest().permitAll();//取消安全校验，当测试其他function且不跟权限相关的时候可以使用这里
+            }
         }
     }
 

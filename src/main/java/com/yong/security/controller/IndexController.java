@@ -4,6 +4,7 @@ import com.yong.security.model.ResponseVo;
 import com.yong.security.model.UserEntity;
 import com.yong.security.repository.UserDao;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -20,6 +21,7 @@ import java.util.function.Function;
 @RestController
 @CrossOrigin
 @AllArgsConstructor
+@Slf4j
 public class IndexController {
 
     /**
@@ -31,21 +33,23 @@ public class IndexController {
 
     @GetMapping("/index")
     public ResponseVo getHelloWorld(){
+        log.debug("start index test");
         return ResponseVo.success("test success!");
     }
 
-//    @GetMapping("/test/{username}")
-//    public Mono getUser(@PathVariable String username){
-//        userDao.findById(username)
-//            .timeout(Duration.ofMillis(800))//设置timeout 测试
-//            .flatMap(IndexController::getDetail);
-////            .map(ResponseVo::success);
-//        return null;
-//    }
 
-//    public static Mono getDetail(Object userEntity){
-//        //TODO do something
-//        return Mono.just(userEntity);
-//    }
+    @GetMapping("/mono")
+    public Mono getMono(){
+        log.debug("start mono test");
+        return Mono.just("hello world");
+    }
+
+    @GetMapping("/mono1")
+    public Mono getPauseMono(){
+        log.debug("start mono1 test");
+        return Mono.just("hello pause world").delaySubscription(Duration.ofMillis(3000));
+    }
+
+
 
 }

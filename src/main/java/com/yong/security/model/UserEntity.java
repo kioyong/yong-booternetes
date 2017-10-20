@@ -29,13 +29,18 @@ public class UserEntity implements UserDetails,CredentialsContainer {
 
     @Id
     private String username;
-    @JsonIgnore
     private String password;
     private Set<GrantedAuthority> authorities;
     private  boolean accountNonExpired;
     private  boolean accountNonLocked;
     private  boolean credentialsNonExpired;
     private  boolean enabled;
+
+    @Override
+    @JsonIgnore
+    public String getPassword() {
+        return this.password;
+    }
 
     @JsonIgnore
     @Override
@@ -45,10 +50,6 @@ public class UserEntity implements UserDetails,CredentialsContainer {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
-    }
-    @Override
-    public String getPassword() {
-        return this.password;
     }
 
     @Override

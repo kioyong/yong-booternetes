@@ -26,4 +26,10 @@ logging:
     com.yong: DEBUG
     org.springframework.security: INFO
 
-
+yong:
+  oauth:
+#如果为false, 任何url都不校验, 方便测试一些与Security无关的接口
+    enable: false
+  debug:
+#如果为true,在报错的时候,将报错信息直接塞到ResponseVO的data里面,方便查看
+    enable: true

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import java.security.Principal;
 
+import static com.google.common.base.Preconditions.checkArgument;
 
 
 /**
@@ -54,8 +55,7 @@ public class UserController {
      * restController Post request 默认的RequestBody也是 application/json格式的
      * **/
     @PostMapping(path = "/register",consumes = "application/json")
-    public Mono registerUser(@RequestBody AuthenticationVo auth){
-        //webFlux写法一
+    public Mono<ResponseVo> registerUser(@RequestBody AuthenticationVo auth){
         return this.userDetailService.findUserByUsername(auth.getUsername())
             .map(t -> ResponseVo.error("user " + t.getUsername() + " already exists!"))
             .switchIfEmpty(
