@@ -33,8 +33,7 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("start load User By Username");
-        UserEntity user = dao.findById(username).block();
-        return user;
+        return dao.findById(username).block();
     }
 
     /**

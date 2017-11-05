@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.config.annotation.builders.ClientDetailsServiceBuilder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -37,12 +38,7 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
  * @createdDate 2017/10/8.
  */
 @Configuration
-@ConfigurationProperties
 public class Oauth2ServerConfig {
-    private static final String RESOURCE_ID = "yong";
-
-    @Value("${yong.oauth.enable}")
-    private static Boolean enable_auth;
 
     @Configuration
     @EnableWebSecurity
@@ -86,9 +82,27 @@ public class Oauth2ServerConfig {
         @Autowired
         private AuthenticationManager authenticationManager;
 
+        @Autowired
+        private UserDetailsService userDetailsService;
+
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
-            return new JwtAccessTokenConverter();
+            return tokenEnhancerChain();
+        }
+        private JwtAccessTokenConverter tokenEnhancerChain() {
+            JwtAccessTokenConverter tokenEnhancerChain = new JwtAccessTokenConverter();
+            tokenEnhancerChain.setAccessTokenConverter(jwtAccessTokenConverter());
+            return tokenEnhancerChain;
+        }
+        @Bean
+        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+            DefaultUserAuthenticationConverter defaultUserAuthenticationConverter = new DefaultUserAuthenticationConverter();
+            defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
+            DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
+            jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
+            jwtAccessTokenConverter.setSigningKey("yong_secret1");
+            return jwtAccessTokenConverter;
         }
 
         @Override
@@ -97,6 +111,7 @@ public class Oauth2ServerConfig {
                 .accessTokenConverter(accessTokenConverter())
                 .authenticationManager(this.authenticationManager);
         }
+
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.inMemory()
@@ -104,11 +119,11 @@ public class Oauth2ServerConfig {
                 .secret("passw0rd")
                 .authorities("ROLE_TRUSTED_CLIENT")
                 .accessTokenValiditySeconds(3600)
-                .authorizedGrantTypes("password","refresh_token")
+                .authorizedGrantTypes("client_credentials", "password", "refresh_token", "implicit", "authorization_code")
                 .scopes("read", "write")
-                .autoApprove("read", "write");
+                .autoApprove("read", "write")
+            ;
         }
-
     }
 
     @Configuration
@@ -117,10 +132,37 @@ public class Oauth2ServerConfig {
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
         private ClientDetailsService clientDetailsService;
 
+        private static boolean enable_auth;
+        private static String resourceId;
+        ResourceServerConfiguration(@Value("${yong.oauth.enable}")boolean enable_auth,
+                                    @Value("${yong.oauth.resource}")String resourceId){
+            this.enable_auth = enable_auth;
+            this.resourceId = resourceId;
+        }
+
+        @Autowired
+        private UserDetailsService userDetailsService;
+
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
-            return new JwtAccessTokenConverter();
+            return tokenEnhancerChain();
         }
+        private JwtAccessTokenConverter tokenEnhancerChain() {
+            JwtAccessTokenConverter tokenEnhancerChain = new JwtAccessTokenConverter();
+            tokenEnhancerChain.setAccessTokenConverter(jwtAccessTokenConverter());
+            return tokenEnhancerChain;
+        }
+        @Bean
+        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+            DefaultUserAuthenticationConverter defaultUserAuthenticationConverter = new DefaultUserAuthenticationConverter();
+            defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
+            DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
+            jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
+            jwtAccessTokenConverter.setSigningKey("yong_secret2");
+            return jwtAccessTokenConverter;
+        }
+
         @Bean
         public TokenStore tokenStore() {
             return new JwtTokenStore(accessTokenConverter());
@@ -132,7 +174,7 @@ public class Oauth2ServerConfig {
             defaultTokenServices.setTokenStore(tokenStore());
             defaultTokenServices.setTokenEnhancer(accessTokenConverter());
             defaultTokenServices.setClientDetailsService(clientDetailsService);
-            resources.resourceId(RESOURCE_ID).tokenServices(defaultTokenServices);
+            resources.resourceId(resourceId).tokenServices(defaultTokenServices);
         }
         @Override
         public void configure(HttpSecurity http) throws Exception {
@@ -142,8 +184,7 @@ public class Oauth2ServerConfig {
                         .antMatchers("/user/register", "/index", "/v2/api-docs", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }else {
-                http.authorizeRequests()
-                        .anyRequest().permitAll();//取消安全校验，当测试其他function且不跟权限相关的时候可以使用这里
+                http.antMatcher("/**").authorizeRequests().anyRequest().permitAll();
             }
         }
     }
