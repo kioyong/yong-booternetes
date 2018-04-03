@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 
@@ -48,9 +50,10 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     }
 
     @Override
-    public UserEntity findUserByUsername(String username){
+    public Optional<UserEntity> findUserByUsername(String username){
         checkArgument(!username.isEmpty(),"username can't be null");
-        return dao.findById(username).get();
+        return dao.findById(username);
+
     }
 
     public void registerUserBeforeCheck(UserEntity user){

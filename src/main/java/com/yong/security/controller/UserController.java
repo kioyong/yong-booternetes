@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -36,8 +37,8 @@ public class UserController {
      * **/
     @PostMapping(path = "/register",consumes = "application/json")
     public ResponseVo registerUser(@RequestBody AuthenticationVo auth){
-        UserEntity user = this.userDetailService.findUserByUsername(auth.getUsername());
-        checkArgument(user == null,"user " + user.getUsername() + " already exists!");
+        Optional<UserEntity> user = this.userDetailService.findUserByUsername(auth.getUsername());
+        checkArgument(!user.isPresent(),"User "+ auth.getUsername() + " already exists!");
         UserEntity userEntity = this.userDetailService.registerUser(
             UserEntity.builder().username(auth.getUsername()).password(auth.getPassword()).build()
         );
