@@ -8,7 +8,8 @@ spring:
       name: yong-security
   data:
     mongodb:
-      uri: mongodb://localhost:27017/security
+      uri: mongodb://139.199.189.64:32770/security
+      database: security
 security:
   headers:
     content-type: true
@@ -24,5 +25,3 @@ yong:
     resource: yong
   debug:
     enable: true
-#如果为true,在报错的时候,将报错信息直接塞到ResponseVO的data里面,方便查看
-#如果为false, 任何url都不校验, 方便测试一些与Security无关的接口

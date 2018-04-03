@@ -43,7 +43,6 @@ public class UserEntity implements UserDetails,CredentialsContainer {
     }
 
     @JsonIgnore
-    @Override
     public String getName() {
         return getUsername();
     }

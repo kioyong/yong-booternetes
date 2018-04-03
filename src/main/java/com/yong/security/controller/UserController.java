@@ -4,15 +4,14 @@ import com.yong.security.model.AuthenticationVo;
 import com.yong.security.model.ResponseVo;
 import com.yong.security.model.UserEntity;
 import com.yong.security.service.impl.UserDetailServiceImpl;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+
 import java.security.Principal;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -29,27 +28,6 @@ public class UserController {
 
     private final UserDetailServiceImpl userDetailService;
 
-    /**
-     * 查看用户状态等信息，该接口只能为tonken owner或者具有ADMIN权限的人访问
-     * ADMIN可以查看所有人的权限，自己只能查看本人状态
-     * **/
-    @GetMapping("/{username}")
-    @PreAuthorize("#username == authentication.name or hasRole('ADMIN')")
-    public Mono<ResponseVo> getUserDetail(@PathVariable("username")String username){
-        return this.userDetailService.findUserByUsername(username)
-            .map(ResponseVo::success)
-            .switchIfEmpty(Mono.just(ResponseVo.error("user not found!")));
-    }
-
-    /**
-     * 看到当前使用token的一些信息
-     * */
-    @GetMapping("/me")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @ApiOperation(value = "")
-    public Mono<Principal> me(@AuthenticationPrincipal Principal principal){
-        return Mono.just(principal);
-    }
 
     /**
      * 注册功能，Body上需要输入用户名和密码，
@@ -57,23 +35,26 @@ public class UserController {
      * restController Post request 默认的RequestBody也是 application/json格式的
      * **/
     @PostMapping(path = "/register",consumes = "application/json")
-    public Mono<ResponseVo> registerUser(@RequestBody AuthenticationVo auth){
-        return this.userDetailService.findUserByUsername(auth.getUsername())
-            .map(t -> ResponseVo.error("user " + t.getUsername() + " already exists!"))
-            .switchIfEmpty(
-                this.userDetailService.registerUser(
-                    UserEntity.builder()
-                        .username(auth.getUsername())
-                        .password(auth.getPassword())
-                        .build()
-                )
-            .map(ResponseVo::success));
+    public ResponseVo registerUser(@RequestBody AuthenticationVo auth){
+        UserEntity user = this.userDetailService.findUserByUsername(auth.getUsername());
+        checkArgument(user == null,"user " + user.getUsername() + " already exists!");
+        UserEntity userEntity = this.userDetailService.registerUser(
+            UserEntity.builder().username(auth.getUsername()).password(auth.getPassword()).build()
+        );
+        return ResponseVo.success(userEntity);
     }
 
-//    @RequestMapping({ "/user", "/me" })
-//    public Map<String, String> user(Principal principal) {
-//        Map<String, String> map = new LinkedHashMap<>();
-//        map.put("name", principal.getName());
-//        return map;
-//    }
+    @GetMapping("/me")
+    public Principal me(@AuthenticationPrincipal Principal principal){
+        return principal;
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity test(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(authentication);
+    }
+
+
+
 }

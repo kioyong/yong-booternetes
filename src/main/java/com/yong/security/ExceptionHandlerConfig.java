@@ -38,7 +38,6 @@ public class ExceptionHandlerConfig {
                     return map;
                 }).collect(Collectors.toList());
         log.error("handle exception {}",ex);
-        //是否返回异常信息抛出的信息到ResopnseVo中
         if(dataFlag) {
             return ResponseVo.error(Throwables.getRootCause(ex).getMessage(), list);
         }else {

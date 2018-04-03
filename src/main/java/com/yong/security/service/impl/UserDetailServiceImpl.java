@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -33,7 +32,7 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("start load User By Username");
-        return dao.findById(username).block();
+        return dao.findById(username).get();
     }
 
     /**
@@ -41,7 +40,7 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
      *
      * **/
     @Override
-    public Mono<UserEntity> registerUser(UserEntity user) {
+    public UserEntity registerUser(UserEntity user) {
         registerUserBeforeCheck(user);
         user.init();
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
@@ -49,9 +48,9 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     }
 
     @Override
-    public Mono<UserEntity> findUserByUsername(String username){
+    public UserEntity findUserByUsername(String username){
         checkArgument(!username.isEmpty(),"username can't be null");
-        return dao.findById(username);
+        return dao.findById(username).get();
     }
 
     public void registerUserBeforeCheck(UserEntity user){
