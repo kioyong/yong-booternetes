@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.yong.authorization.server</groupId>
-	<artifactId>yong-authorization-server</artifactId>
+	<groupId>com.yong.security</groupId>
+	<artifactId>yong-security</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>yong-authorization-server</name>
+	<name>yong-security</name>
 	<description>Demo project for Spring Security</description>
 
 	<parent>
