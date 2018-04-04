@@ -1,10 +1,8 @@
 package com.yong.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,6 +19,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
@@ -52,7 +51,7 @@ public class Oauth2ServerConfig {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers().antMatchers(HttpMethod.OPTIONS, "/oauth/**")
+            http.requestMatchers().antMatchers(HttpMethod.OPTIONS, "/api/oauth/**")
                 .and().authorizeRequests().anyRequest().permitAll()
                 .and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
@@ -91,7 +90,7 @@ public class Oauth2ServerConfig {
             defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
             DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
             jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
-            jwtAccessTokenConverter.setSigningKey("yong_secret1");
+            jwtAccessTokenConverter.setSigningKey("passw0rd");
             return jwtAccessTokenConverter;
         }
 
@@ -106,7 +105,7 @@ public class Oauth2ServerConfig {
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.inMemory()
                 .withClient("yong")
-                .secret("passw0rd")
+                .secret("{noop}passw0rd")
                 .authorities("ROLE_TRUSTED_CLIENT")
                 .accessTokenValiditySeconds(3600)
                 .authorizedGrantTypes("client_credentials", "password", "refresh_token", "implicit", "authorization_code")
@@ -143,12 +142,12 @@ public class Oauth2ServerConfig {
             defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
             DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
             jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
-            jwtAccessTokenConverter.setSigningKey("yong_secret2");
+            jwtAccessTokenConverter.setSigningKey("passw0rd");
             return jwtAccessTokenConverter;
         }
 
         @Bean
-        public TokenStore tokenStore() {
+        public TokenStore jwtTokenStore() {
             return new JwtTokenStore(accessTokenConverter());
         }
 
@@ -156,7 +155,7 @@ public class Oauth2ServerConfig {
         public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
 
             final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setTokenStore(jwtTokenStore());
             defaultTokenServices.setTokenEnhancer(accessTokenConverter());
             defaultTokenServices.setClientDetailsService(clientDetailsService);
             resources.resourceId("yong").tokenServices(defaultTokenServices);
