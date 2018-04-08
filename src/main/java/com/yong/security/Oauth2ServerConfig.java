@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConv
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -66,99 +67,74 @@ public class Oauth2ServerConfig {
     @Configuration
     @EnableAuthorizationServer
     protected class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
+
+        /**
+         * 配置clients的信息
+         * 可以使用in-memory或者通过JDBC来实现获取clients的信息，demo使用in-memory声明clients信息
+         * clientId: 必填项
+         * secret: 2.0.0之后，secret前面需要写上加密类型，可以使用{noop}
+         * scope: client 的操作范围.没有定义的话，默认没有权限
+         * authorizedGrantTypes: 声明可以使用的Grant Types
+         * authorities: 填写"ROLE_TRUSTED_CLIENT"即可
+         **/
+        @Override
+        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+            clients.inMemory()
+                .withClient("yong")
+                .secret("{noop}passw0rd")
+                .scopes("read", "write")
+                .authorities("ROLE_TRUSTED_CLIENT")
+                .accessTokenValiditySeconds(3600)
+                .authorizedGrantTypes("client_credentials", "password", "refresh_token", "implicit", "authorization_code")
+                .autoApprove("read", "write")
+            ;
+        }
+
+        /**
+         * 管理Tokens
+         * 可以自主选择InMemoryTokenStore,JdbcTokenStore,JwtTokenStore,等,
+         * InMemoryTokenStore 是默认的tokenStore,使用时不需要配置额外的东西
+         **/
+
         @Autowired
         private AuthenticationManager authenticationManager;
-
-        @Autowired
-        private UserDetailsService userDetailsService;
-
-        @Bean
-        public JwtAccessTokenConverter accessTokenConverter() {
-            return tokenEnhancerChain();
-        }
-
-        private JwtAccessTokenConverter tokenEnhancerChain() {
-            JwtAccessTokenConverter tokenEnhancerChain = new JwtAccessTokenConverter();
-            tokenEnhancerChain.setAccessTokenConverter(jwtAccessTokenConverter());
-            return tokenEnhancerChain;
-        }
 
         @Bean
         public JwtAccessTokenConverter jwtAccessTokenConverter() {
             JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            DefaultUserAuthenticationConverter defaultUserAuthenticationConverter = new DefaultUserAuthenticationConverter();
-            defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
-            DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
-            jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
-            jwtAccessTokenConverter.setSigningKey("passw0rd");
             return jwtAccessTokenConverter;
         }
 
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
             endpoints
-                .accessTokenConverter(accessTokenConverter())
+                .accessTokenConverter(jwtAccessTokenConverter())
                 .authenticationManager(this.authenticationManager);
         }
 
-        @Override
-        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.inMemory()
-                .withClient("yong")
-                .secret("{noop}passw0rd")
-                .authorities("ROLE_TRUSTED_CLIENT")
-                .accessTokenValiditySeconds(3600)
-                .authorizedGrantTypes("client_credentials", "password", "refresh_token", "implicit", "authorization_code")
-                .scopes("read", "write")
-                .autoApprove("read", "write")
-            ;
-        }
     }
 
     @Configuration
     @EnableResourceServer
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
+//    @EnableGlobalMethodSecurity(prePostEnabled = true)
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-        private ClientDetailsService clientDetailsService;
-
-        @Autowired
-        private UserDetailsService userDetailsService;
-
-        @Bean
-        public JwtAccessTokenConverter accessTokenConverter() {
-            return tokenEnhancerChain();
-        }
-
-        private JwtAccessTokenConverter tokenEnhancerChain() {
-            JwtAccessTokenConverter tokenEnhancerChain = new JwtAccessTokenConverter();
-            tokenEnhancerChain.setAccessTokenConverter(jwtAccessTokenConverter());
-            return tokenEnhancerChain;
-        }
 
         @Bean
         public JwtAccessTokenConverter jwtAccessTokenConverter() {
             JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            DefaultUserAuthenticationConverter defaultUserAuthenticationConverter = new DefaultUserAuthenticationConverter();
-            defaultUserAuthenticationConverter.setUserDetailsService(userDetailsService);
-            DefaultAccessTokenConverter defaultAccessTokenConverter = new DefaultAccessTokenConverter();
-            jwtAccessTokenConverter.setAccessTokenConverter(defaultAccessTokenConverter);
-            jwtAccessTokenConverter.setSigningKey("passw0rd");
             return jwtAccessTokenConverter;
         }
 
         @Bean
-        public TokenStore jwtTokenStore() {
-            return new JwtTokenStore(accessTokenConverter());
+        public TokenStore tokenStore() {
+            return new JwtTokenStore(jwtAccessTokenConverter());
         }
 
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-
-            final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(jwtTokenStore());
-            defaultTokenServices.setTokenEnhancer(accessTokenConverter());
-            defaultTokenServices.setClientDetailsService(clientDetailsService);
-            resources.resourceId("yong").tokenServices(defaultTokenServices);
+            final DefaultTokenServices jwtTokenService = new DefaultTokenServices();
+            jwtTokenService.setTokenStore(tokenStore());
+            resources.tokenServices(jwtTokenService);
         }
 
         @Override
