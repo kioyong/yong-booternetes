@@ -50,13 +50,6 @@ public class Oauth2ServerConfig {
                 .passwordEncoder(new BCryptPasswordEncoder());
         }
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers().antMatchers(HttpMethod.OPTIONS, "/api/oauth/**")
-                .and().authorizeRequests().anyRequest().permitAll()
-                .and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        }
-
         @Bean
         @Override
         public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -112,11 +105,18 @@ public class Oauth2ServerConfig {
                 .authenticationManager(this.authenticationManager);
         }
 
+        @Override
+        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+            oauthServer
+                .tokenKeyAccess("permitAll()")
+                .checkTokenAccess("isAuthenticated()");
+        }
+
     }
 
     @Configuration
     @EnableResourceServer
-//    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
         @Bean
@@ -140,8 +140,9 @@ public class Oauth2ServerConfig {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.css", "/**/*.js", "/**/*.png").permitAll()
-                .antMatchers("/user/register", "/index", "/v2/api-docs", "/swagger-resources/**").permitAll()
+                .antMatchers("/user/register", "/demo/hello").permitAll()
                 .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
