@@ -34,7 +34,12 @@ public class UserDetailServiceImpl implements UserDetailsService,UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("start load User By Username");
-        return dao.findById(username).get();
+        Optional<UserEntity> userEntityOptional = dao.findById(username);
+        if(userEntityOptional.isPresent()){
+            return userEntityOptional.get();
+        }else {
+            throw new UsernameNotFoundException("User not exists!");
+        }
     }
 
     /**
