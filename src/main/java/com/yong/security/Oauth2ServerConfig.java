@@ -3,6 +3,7 @@ package com.yong.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -37,6 +38,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @Configuration
 public class Oauth2ServerConfig {
 
+    @Order(-1)
     @Configuration
     @EnableWebSecurity
     protected static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -54,6 +56,15 @@ public class Oauth2ServerConfig {
         @Override
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+            http.requestMatchers().antMatchers(HttpMethod.OPTIONS)
+                .and()
+                .authorizeRequests().anyRequest().permitAll()
+                .and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
@@ -140,7 +151,7 @@ public class Oauth2ServerConfig {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS).permitAll()
+                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.css", "/**/*.js", "/**/*.png").permitAll()
                 .antMatchers("/user/register", "/demo/hello").permitAll()
                 .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
