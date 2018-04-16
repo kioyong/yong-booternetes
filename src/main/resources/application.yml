@@ -1,13 +1,13 @@
 server:
-  port: 8082
+  port: 8080
 
 spring:
   application:
       name: yong-security
   data:
     mongodb:
-#      uri: mongodb://139.199.189.64:32770/security
-      uri: mongodb://127.0.0.1:27017/security
+      uri: mongodb://139.199.189.64:32770/security
+#      uri: mongodb://127.0.0.1:27017/security
       database: security
 security:
   headers:
