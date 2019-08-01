@@ -1,4 +1,4 @@
-package com.yong.security;
+package com.yong.security.controller;
 
 import com.google.common.base.Throwables;
 import com.yong.security.model.ResponseVo;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 @ConfigurationProperties
-public class ExceptionHandlerConfig {
+public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ResponseVo handleArgumentException(Exception ex) {

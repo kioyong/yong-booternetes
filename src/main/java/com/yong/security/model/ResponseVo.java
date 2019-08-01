@@ -16,7 +16,7 @@ import java.util.Arrays;
 @NoArgsConstructor
 public class ResponseVo {
 
-    private int code;
+    private Integer code;
 
     private String message;
 
@@ -28,8 +28,8 @@ public class ResponseVo {
     public static ResponseVo success(Object object) {
         return new ResponseVo(0, "success", object);
     }
-    public static ResponseVo success(String string) {
-        return new ResponseVo(0, string,null);
+    public static ResponseVo success() {
+        return new ResponseVo(0, "success",null);
     }
 
     /**

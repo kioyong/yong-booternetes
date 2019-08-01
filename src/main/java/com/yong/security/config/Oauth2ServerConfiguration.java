@@ -1,4 +1,4 @@
-package com.yong.security;
+package com.yong.security.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
  * @createdDate 2017/10/8.
  */
 @Configuration
-public class Oauth2ServerConfig {
+public class Oauth2ServerConfiguration {
 
     @Order(-1)
     @Configuration
@@ -88,7 +88,7 @@ public class Oauth2ServerConfig {
                 .secret("{noop}passw0rd")
                 .scopes("read", "write")
                 .authorities("ROLE_TRUSTED_CLIENT")
-                .accessTokenValiditySeconds(3600)
+                .accessTokenValiditySeconds(28800)
                 .authorizedGrantTypes("client_credentials", "password", "refresh_token", "implicit", "authorization_code")
                 .autoApprove("read", "write")
             ;
@@ -153,7 +153,7 @@ public class Oauth2ServerConfig {
             http.authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.css", "/**/*.js", "/**/*.png").permitAll()
-                .antMatchers("/user/register", "/demo/hello").permitAll()
+                .antMatchers("/user/register", "/user/login").permitAll()
                 .anyRequest().authenticated().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }

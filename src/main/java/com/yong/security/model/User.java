@@ -21,15 +21,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author  LiangYong
  * @createdDate 2017/10/1.
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Document(collection = "user")
+@Data
 @Builder
-public class UserEntity implements UserDetails,CredentialsContainer {
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "user")
+public class User implements UserDetails,CredentialsContainer {
 
     @Id
-    private String username;
-    private String password;
+    private String openid;
+    @JsonIgnore
+    private String encryptSessionKey;
+    @JsonIgnore
+    private String sessionKey;
+    private String avatarUrl;
+    private String country;
+    private Integer gender;
+    private String language;
+    private String nickName;
+    private String province;
+
     private Set<GrantedAuthority> authorities;
     private  boolean accountNonExpired;
     private  boolean accountNonLocked;
@@ -39,21 +50,18 @@ public class UserEntity implements UserDetails,CredentialsContainer {
     @Override
     @JsonIgnore
     public String getPassword() {
-        return this.password;
+        return this.encryptSessionKey;
     }
 
-    @JsonIgnore
-    public String getName() {
-        return getUsername();
-    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
-        return this.username;
+        return this.openid;
     }
 
     @Override
@@ -78,31 +86,6 @@ public class UserEntity implements UserDetails,CredentialsContainer {
 
     @Override
     public void eraseCredentials() {
-        this.password = null;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setAuthorities(Set<GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
-
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        this.accountNonExpired = accountNonExpired;
-    }
-
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        this.accountNonLocked = accountNonLocked;
-    }
-
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        this.credentialsNonExpired = credentialsNonExpired;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public void init(){
@@ -115,8 +98,13 @@ public class UserEntity implements UserDetails,CredentialsContainer {
         this.authorities = authorities;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void updateInfo(User user){
+        this.avatarUrl=user.getAvatarUrl();
+        this.country=user.getCountry();
+        this.gender=user.getGender();
+        this.language=user.getLanguage();
+        this.nickName=user.getNickName();
+        this.province=user.getProvince();
     }
 
 

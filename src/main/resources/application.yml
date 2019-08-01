@@ -1,13 +1,16 @@
 server:
-  port: 8080
-
+  port: 8087
 spring:
-  application:
-      name: yong-security
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: http://localhost:8087/.well-known/jwks.json
   data:
     mongodb:
-      uri: mongodb://${yong.mongodb.uri}:27017/security
-      database: security
+      uri: mongodb://localhost:27017/test
+      database: test
+
 security:
   headers:
     content-type: true
@@ -25,3 +28,23 @@ yong:
     enable: true
   mongodb:
     uri: mongodb
+
+
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: "*"
+
+# application:
+wechat:
+  miniapp:
+    appid: xxx
+    secret: xxx
+    msgDataFormat: JSON
+    token: 111
+    aesKey: 111
+
