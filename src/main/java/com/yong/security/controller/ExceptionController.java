@@ -3,7 +3,6 @@ package com.yong.security.controller;
 import com.google.common.base.Throwables;
 import com.yong.security.model.ResponseVo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 @Slf4j
-@ConfigurationProperties
 public class ExceptionController {
 
     @ExceptionHandler(Exception.class)

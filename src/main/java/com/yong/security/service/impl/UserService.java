@@ -102,11 +102,6 @@ public class UserService implements UserDetailsService {
         parameters.put("username", username);
         parameters.put("password", password);
         return tokenEndpoint.postAccessToken(authenticationToken, parameters);
-//        String value = jwtToken.getBody().getValue();
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.add("Authorization", "Bearer " + value);
-//        log.debug("value = {}",value);
-//        return new ResponseEntity<>(jwtToken.getBody(), httpHeaders, HttpStatus.OK);
 
     }
 }
