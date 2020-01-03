@@ -1,0 +1,12 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: spring-authorization-server
+
+security:
+  oauth2:
+    client:
+      client-id: yong
+      client-secret: passw0rd

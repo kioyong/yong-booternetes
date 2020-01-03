@@ -1,31 +1,8 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
-.mvn/
-.metadata/
-*.bak
+!**/src/main/**
+!**/src/test/**
 
 ### STS ###
 .apt_generated
@@ -34,26 +11,32 @@ target/
 .project
 .settings
 .springBeans
+.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
-*.idea/
 *.iws
 *.iml
 *.ipr
-*.log
-*.project
 
 ### NetBeans ###
-nbproject/private/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-config-repo/
 
-config-repo/
-*/rebel.xml
-*/.rebel.xml.bak
-src/main/resources/rebel.xml
+### VS Code ###
+.vscode/
+
+**/application-dev.yml
+**/.mvn/
+**/mvnw/
+mvnw/
+.mvn/
+.mvn
+mvnw
+mvnw.cmd
+*-dev.yml
+*-qa.yml
