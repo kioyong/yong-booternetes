@@ -6,12 +6,9 @@ spring:
 #      resourceserver:
 #        jwt:
 #          jwk-set-uri: http://localhost:8087/.well-known/jwks.json
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/test?authSource=admin
-      database: test
-
-
+  main:
+    lazy-initialization: true
+  ##    allow-bean-definition-overriding: true
 logging:
   level:
     com.yong: DEBUG

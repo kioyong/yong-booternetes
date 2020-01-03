@@ -22,12 +22,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -70,7 +66,7 @@ public class Oauth2ServerConfiguration {
 
     @Configuration
     @EnableAuthorizationServer
-    protected class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
+    protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
         /**
          * 配置clients的信息
@@ -130,15 +126,12 @@ public class Oauth2ServerConfiguration {
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-        @Bean
-        public JwtAccessTokenConverter jwtAccessTokenConverter() {
-            JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            return jwtAccessTokenConverter;
-        }
+        @Autowired
+        private JwtAccessTokenConverter jwtAccessTokenConverter;
 
         @Bean
         public TokenStore tokenStore() {
-            return new JwtTokenStore(jwtAccessTokenConverter());
+            return new JwtTokenStore(jwtAccessTokenConverter);
         }
 
         @Override
@@ -151,9 +144,9 @@ public class Oauth2ServerConfiguration {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.css", "/**/*.js", "/**/*.png").permitAll()
-                .antMatchers("/user/register", "/user/login").permitAll()
+                .antMatchers("/user/register", "/user/login","/oauth/token").permitAll()
                 .anyRequest().authenticated().and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }

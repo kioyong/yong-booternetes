@@ -57,3 +57,6 @@ config-repo/
 */rebel.xml
 */.rebel.xml.bak
 src/main/resources/rebel.xml
+
+*/application-dev.yml
+src/main/resources/application-dev.yml
