@@ -17,6 +17,7 @@ public class YongLocationApiApplication {
 
 	@GetMapping("/hello")
 	public String hello(){
+
 		return "hello1";
 	}
 }

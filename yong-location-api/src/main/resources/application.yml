@@ -23,4 +23,4 @@ server:
 
 logging:
   level:
-    ROOT: DEBUG
+    web: DEBUG
