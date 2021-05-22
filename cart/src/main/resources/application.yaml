@@ -1,0 +1,22 @@
+cart:
+  points-sink-url: http://localhost:8081
+  coffees:
+    - Sumatra
+    - Breakfast Blend
+    - Blend of the Day
+###
+spring:
+  config:
+    active:
+      on-profile: default
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/cart
+####
+#spring:
+#  config:
+#    active:
+#      on-cloud-platform: kubernetes
+#  data:
+#    mongodb:
+#      uri: mongodb://${CART_MONGODB_SERVICE_HOST}:${CART_MONGODB_PORT}}/cart
