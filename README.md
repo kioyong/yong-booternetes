@@ -1,8 +1,3 @@
-# Yong Security
+# Yong Booternetes
 
-Yong Security is a wechat mini program auth-server 
-
-
-## base-auth-demo
-
-- upgrade to spring 2.5.0
+Spring Boot & Kubernetes!
