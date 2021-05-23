@@ -1,4 +1,4 @@
-package yong.booternetes.cafe.cart.caffee;
+package yong.booternetes.cafe.cart.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,12 +8,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "coffee")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Coffee {
+@Document(collection = "cafe_order")
+public class OrderEntity {
 
     @Id
-    private Integer id;
-    private String name;
+    private String id;
+    private String coffee;
+    private String username;
+    private int quantity;
 }

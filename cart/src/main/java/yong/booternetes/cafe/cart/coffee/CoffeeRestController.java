@@ -1,4 +1,4 @@
-package yong.booternetes.cafe.cart.caffee;
+package yong.booternetes.cafe.cart.coffee;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -13,7 +13,7 @@ public class CoffeeRestController {
     private final CoffeeRepository cafe;
 
     @GetMapping("/cart/coffees")
-    public Flux<Coffee> get() {
+    public Flux<CoffeeEntity> get() {
         return cafe.findAll();
     }
 }

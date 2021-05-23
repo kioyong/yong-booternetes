@@ -36,9 +36,9 @@ public class OrderRestController {
     }
 
     @PostMapping("/cart/orders")
-    public Mono<Void> placeOrder(@RequestBody Order order) {
+    public Mono<Void> placeOrder(@RequestBody OrderEntity orderEntity) {
         return this.orderRepository
-                .saveAll(Flux.range(0, 10).map(l -> order))
+                .saveAll(Flux.range(0, 10).map(l -> orderEntity))
                 .doOnNext(o -> log.info(o.toString()))
                 .flatMap(this::send)
                 .onErrorResume(err -> {
@@ -49,10 +49,10 @@ public class OrderRestController {
     }
 
 
-    private Mono<String> send(Order order) {
+    private Mono<String> send(OrderEntity orderEntity) {
         var payload = Map.of(
-                "username", order.getUsername(),
-                "amount", order.getQuantity());
+                "username", orderEntity.getUsername(),
+                "amount", orderEntity.getQuantity());
         return this.http
                 .post()
                 .uri(cartPointsSinkUrl)

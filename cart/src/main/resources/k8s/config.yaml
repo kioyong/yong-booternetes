@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metada:
+  name: cart-configmap
+
+data:
+  application.properties:
+    cart.coffees=The Shakes; Cloudy Blend; Sumatra; Breakfast Blend; Blend of the day;

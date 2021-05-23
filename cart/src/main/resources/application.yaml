@@ -1,12 +1,9 @@
 cart:
-#  points-sink-url: http://localhost:8081
+  #  points-sink-url: http://localhost:8081
   points-sink-url: http://localhost:8081/ok
-#  points-sink-url: http://localhost:8081/timeout
-#  points-sink-url: http://localhost:8081/retry
-  coffees:
-    - Sumatra
-    - Breakfast Blend
-    - Blend of the Day
+  #  points-sink-url: http://localhost:8081/timeout
+  #  points-sink-url: http://localhost:8081/retry
+  coffees: 'Sumatra;Breakfast Blend;Blend of the Day'
 ###
 spring:
   config:

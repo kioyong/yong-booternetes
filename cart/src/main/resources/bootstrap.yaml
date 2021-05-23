@@ -1,6 +1,14 @@
 spring:
   application:
     name: cart
-
+  cloud:
+    kubernetes:
+      config:
+        namespace: yong
+        sources:
+          - name: ${spring.application.name}-map
+      reload:
+        enabled: true
+        mode: event
 server:
   port: 8080
