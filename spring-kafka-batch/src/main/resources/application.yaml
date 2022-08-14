@@ -1,0 +1,54 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: spring-kafka-batch-model
+  kafka:
+    producer:
+      #      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      #      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # example "eyJuYW1lIjoiaGVsbG8iLCJhZ2UiOjg1fQ=="
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer #error, Can't convert value of class [B to class org.apache.kafka.common.serialization.StringSerializer specified in value.serializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer # 默认值
+      properties:
+        "[spring.json.add.type.headers]": false
+    consumer:
+      #      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 默认是 StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer # 默认值 StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer # 默认值 StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer # 默认值
+      auto-offset-reset: latest
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  cloud:
+    function:
+      definition: 'singleMessage'
+    stream:
+      bindings:
+        greeting-out-0:
+          destination: greeting
+        singleMessage-in-0:
+          destination: greeting
+          group: 'singleMessage'
+          consumer:
+            max-attempts: 1
+            batch-mode: false
+        batchMessage-in-0:
+          destination: 'greeting'
+          group: 'batchMessage'
+          consumer:
+            max-attempts: 1
+            batch-mode: true
+      kafka:
+        binder:
+          consumer-properties:
+            max.poll:
+              interval.ms: 1000000
+              records: 5
+            fetch.max.wait.ms: 1000
+          auto-create-topics: true
+logging:
+  level:
+    org.apache.kafka: error

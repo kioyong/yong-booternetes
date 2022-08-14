@@ -1,0 +1,48 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: spring-kafka-batch-model
+  kafka:
+    producer:
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      auto-offset-reset: latest
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  cloud:
+    function:
+#      definition: 'singleMessage'
+      definition: 'batchMessage'
+    stream:
+      bindings:
+        greeting-out-0:
+          destination: greeting
+        singleMessage-in-0:
+          destination: greeting
+          group: 'singleMessage'
+          consumer:
+            max-attempts: 1
+            batch-mode: false
+        batchMessage-in-0:
+          destination: 'greeting'
+          group: 'batchMessage'
+          consumer:
+            max-attempts: 1
+            batch-mode: true
+      kafka:
+        binder:
+          consumer-properties:
+            max.poll:
+              interval.ms: 1000000
+              records: 5
+            fetch.max.wait.ms: 1000
+          auto-create-topics: true
+          
+logging:
+  level:
+    org.apache.kafka: error
